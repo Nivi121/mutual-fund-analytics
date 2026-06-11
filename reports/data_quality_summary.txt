@@ -1,0 +1,16 @@
+
+DATA QUALITY SUMMARY REPORT
+============================
+
+1. AMFI CODE VALIDATION
+   Total codes in fund_master  : 10
+   Total codes in nav_history  : 10
+   Codes matched               : 10
+   Codes missing               : 0
+   Result: ✅ ALL CODES MATCHED
+
+2. MISSING VALUES
+   Result: ✅ ALL FILES CLEAN
+
+3. OVERALL STATUS
+   ✅ DATA QUALITY IS GOOD!
