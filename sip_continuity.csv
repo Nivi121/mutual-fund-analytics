@@ -1,0 +1,4 @@
+scheme_code,scheme_name,sip_count,avg_gap_days,max_gap_days,status
+119092,Axis Bluechip,6,63.0,103,⚠️ At-Risk
+120841,Kotak Bluechip,7,54.7,71,⚠️ At-Risk
+119551,SBI Bluechip,6,15.2,34,✅ Regular
