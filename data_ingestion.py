@@ -1,11 +1,23 @@
-import pandas as pd
+"""
+data_ingestion.py
+=================
+Performs the initial loading, schema profiling, and validation of raw CSV datasets.
+Ensures that all required columns are present and profiles row counts, types, and nulls.
+"""
+
+import sys
 import pathlib
+import pandas as pd
 
-# Get project folder path
-BASE = pathlib.Path(__file__).parent.resolve()
-RAW  = BASE / "data" / "raw"
+# Force stdout encoding to UTF-8 if supported
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
 
-# List of all 10 CSV files
+# Default base path is the directory containing this script
+BASE_PATH = pathlib.Path(__file__).parent.resolve()
+
 DATASETS = [
     "fund_master.csv",
     "nav_history.csv",
@@ -19,43 +31,71 @@ DATASETS = [
     "investor_transactions.csv",
 ]
 
-print("=" * 50)
-print("  LOADING ALL 10 DATASETS")
-print("=" * 50)
 
-for filename in DATASETS:
-    filepath = RAW / filename
+def profile_datasets(base_path: pathlib.Path = BASE_PATH) -> bool:
+    """
+    Loads all 10 raw CSV datasets, logs structural info (shape, column types,
+    and missing values), and reports any initial data quality issues.
 
-    print(f"\n📂 {filename}")
-    print("-" * 40)
+    Args:
+        base_path (pathlib.Path): The root directory of the project.
 
-    # Load the CSV file
-    df = pd.read_csv(filepath)
+    Returns:
+        bool: True if all datasets are loaded successfully, False otherwise.
+    """
+    raw_dir = base_path / "data" / "raw"
 
-    # Print shape (rows, columns)
-    print(f"  Shape   : {df.shape[0]} rows × {df.shape[1]} columns")
+    print("=" * 60)
+    print("  LOADING AND PROFILING RAW DATASETS")
+    print("=" * 60)
 
-    # Print column names and their data types
-    print(f"\n  Columns & Types:")
-    for col, dtype in df.dtypes.items():
-        print(f"    • {col:<25} {dtype}")
+    success = True
 
-    # Print first 3 rows
-    print(f"\n  First 3 rows:")
-    print(df.head(3).to_string())
+    for filename in DATASETS:
+        filepath = raw_dir / filename
+        if not filepath.exists():
+            print(f"  [ERROR] File not found: {filename} at {filepath}")
+            success = False
+            continue
 
-    # Check for missing values
-    nulls = df.isnull().sum()
-    nulls = nulls[nulls > 0]
-    if not nulls.empty:
-        print(f"\n  ⚠️  Missing values found:")
-        for col, cnt in nulls.items():
-            print(f"    • {col}: {cnt} missing")
+        print(f"\nDataset: {filename}")
+        print("-" * 50)
+
+        try:
+            # Load the CSV file
+            df = pd.read_csv(filepath)
+
+            # Print shape (rows, columns)
+            print(f"  * Dimensions  : {df.shape[0]} rows x {df.shape[1]} columns")
+
+            # Print column names and their data types
+            print(f"  * Column Schema:")
+            for col, dtype in df.dtypes.items():
+                print(f"    - {col:<25} ({dtype})")
+
+            # Check for missing values
+            nulls = df.isnull().sum()
+            nulls = nulls[nulls > 0]
+            if not nulls.empty:
+                print(f"  * [WARNING] Missing values found:")
+                for col, cnt in nulls.items():
+                    print(f"    - {col}: {cnt} missing")
+            else:
+                print(f"  * Schema Status: Clean (No missing values)")
+
+        except Exception as e:
+            print(f"  [ERROR] Error loading {filename}: {e}")
+            success = False
+
+    print("\n" + "=" * 60)
+    if success:
+        print("  ALL DATASETS LOADED AND PROFILED SUCCESSFULLY!")
     else:
-        print(f"\n  ✅  No missing values")
+        print("  [WARNING] SOME DATASETS FAILED TO LOAD OR ARE MISSING!")
+    print("=" * 60)
 
-    print()
+    return success
 
-print("=" * 50)
-print("  ALL DATASETS LOADED SUCCESSFULLY!")
-print("=" * 50)
+
+if __name__ == "__main__":
+    profile_datasets()

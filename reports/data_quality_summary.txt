@@ -1,16 +1,40 @@
-
 DATA QUALITY SUMMARY REPORT
 ============================
+Generated: 2026-06-17 15:21:21
 
-1. AMFI CODE VALIDATION
-   Total codes in fund_master  : 10
-   Total codes in nav_history  : 10
-   Codes matched               : 10
-   Codes missing               : 0
-   Result: ✅ ALL CODES MATCHED
+1. AMFI REFERENTIAL INTEGRITY CODE VALIDATION
+   - Total codes in fund_master : 10
+   - Total codes in nav_history : 10
+   - Codes matching on both sides: 10
+   - Codes missing from history : 0
+   - Status: [OK] ALL CODES MATCHED
 
-2. MISSING VALUES
-   Result: ✅ ALL FILES CLEAN
+2. NULL & EMPTY RECORD SCAN
+   - Status: [OK] DATA IS CONSOLIDATED (NO MISSING CELLS)
+  * [OK]  fund_master.csv                Clean!
+  * [OK]  nav_history.csv                Clean!
+  * [OK]  scheme_returns.csv             Clean!
+  * [OK]  benchmark_index.csv            Clean!
+  * [OK]  fund_manager.csv               Clean!
+  * [OK]  portfolio_holdings.csv         Clean!
+  * [OK]  aum_history.csv                Clean!
+  * [OK]  expense_ratio.csv              Clean!
+  * [OK]  risk_metrics.csv               Clean!
+  * [OK]  investor_transactions.csv      Clean!
 
-3. OVERALL STATUS
-   ✅ DATA QUALITY IS GOOD!
+3. DUPLICATE ROW ENTRIES
+   - Status: [OK] NO DUPLICATE ROW ENTRIES DETECTED
+  * [OK]  fund_master.csv                No duplicates!
+  * [OK]  nav_history.csv                No duplicates!
+  * [OK]  scheme_returns.csv             No duplicates!
+  * [OK]  benchmark_index.csv            No duplicates!
+  * [OK]  fund_manager.csv               No duplicates!
+  * [OK]  portfolio_holdings.csv         No duplicates!
+  * [OK]  aum_history.csv                No duplicates!
+  * [OK]  expense_ratio.csv              No duplicates!
+  * [OK]  risk_metrics.csv               No duplicates!
+  * [OK]  investor_transactions.csv      No duplicates!
+
+OVERALL QUALITY ASSURANCE STATUS
+--------------------------------
+[OK] DATA QUALITY IS PASSING AND VERIFIED

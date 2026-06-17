@@ -1,12 +1,25 @@
-import requests
-import pandas as pd
+"""
+live_nav_fetch.py
+=================
+Fetches real-time Net Asset Value (NAV) data from the public Mutual Fund API (mfapi.in).
+Downloads historical NAV structures for target AMFI schemes, logs the latest NAV,
+and stores individual csv logs and a snapshot summary in data/raw/.
+"""
+
+import sys
 import pathlib
+import pandas as pd
+import requests
 
-# Get project folder path
-BASE = pathlib.Path(__file__).parent.resolve()
-RAW  = BASE / "data" / "raw"
+# Force stdout encoding to UTF-8 if supported
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
 
-# The 6 mutual funds we want to fetch
+# Default base path is the directory containing this script
+BASE_PATH = pathlib.Path(__file__).parent.resolve()
+
 SCHEMES = {
     125497: "HDFC_Top100_Direct",
     119551: "SBI_Bluechip_Direct",
@@ -16,69 +29,104 @@ SCHEMES = {
     120841: "Kotak_Bluechip_Direct",
 }
 
-print("=" * 50)
-print("  FETCHING LIVE NAV DATA")
-print("=" * 50)
 
-# Store latest NAV of all schemes here
-snapshot = []
+def fetch_live_navs(base_path: pathlib.Path = BASE_PATH) -> bool:
+    """
+    Queries the mfapi.in API for each pre-defined mutual fund scheme,
+    extracts the metadata and NAV history, writes individual CSVs,
+    and updates the latest NAV snapshot.
 
-for code, name in SCHEMES.items():
+    Args:
+        base_path (pathlib.Path): The root directory of the project.
 
-    print(f"\n📡 Fetching {name} (code: {code}) ...")
+    Returns:
+        bool: True if the operation was successful for at least one fund,
+              False if there was a complete system failure or network error.
+    """
+    raw_dir = base_path / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Call the API (like opening a webpage but for data)
-    url      = f"https://api.mfapi.in/mf/{code}"
-    response = requests.get(url, timeout=10)
+    print("=" * 60)
+    print("  FETCHING LIVE NAV DATA FROM MFAPI.IN")
+    print("=" * 60)
 
-    # Check if it worked
-    if response.status_code != 200:
-        print(f"  ❌ Failed! Status code: {response.status_code}")
-        continue
+    snapshot = []
+    successful_fetches = 0
 
-    # Convert response to Python dictionary
-    data = response.json()
+    for code, name in SCHEMES.items():
+        print(f"\nQuerying API for {name} (AMFI: {code}) ...")
+        url = f"https://api.mfapi.in/mf/{code}"
 
-    # Get fund details
-    meta    = data["meta"]
-    records = data["data"]
+        try:
+            # Fetch with a 10-second timeout
+            response = requests.get(url, timeout=10)
 
-    print(f"  ✅ Got {len(records)} NAV records")
-    print(f"  Fund House : {meta['fund_house']}")
-    print(f"  Category   : {meta['scheme_category']}")
+            if response.status_code != 200:
+                print(f"  [ERROR] API returned status code: {response.status_code}")
+                continue
 
-    # Convert to DataFrame
-    df = pd.DataFrame(records)
-    df.columns = ["nav_date", "nav_value"]
-    df["scheme_code"] = code
-    df["scheme_name"] = meta["scheme_name"]
-    df["fund_house"]  = meta["fund_house"]
+            # Convert response to dictionary
+            data = response.json()
+            meta = data.get("meta", {})
+            records = data.get("data", [])
 
-    # Show latest NAV
-    latest = df.iloc[0]
-    print(f"  Latest NAV : ₹ {latest['nav_value']} on {latest['nav_date']}")
+            if not records:
+                print("  [ERROR] Received empty dataset from API.")
+                continue
 
-    # Save individual scheme CSV
-    filename = f"nav_{code}_{name}.csv"
-    df.to_csv(RAW / filename, index=False)
-    print(f"  💾 Saved as {filename}")
+            print(f"  [OK] Retrieved {len(records)} NAV history records.")
+            print(f"    - Fund House: {meta.get('fund_house', 'N/A')}")
+            print(f"    - Category  : {meta.get('scheme_category', 'N/A')}")
 
-    # Add to snapshot
-    snapshot.append({
-        "scheme_code": code,
-        "scheme_name": meta["scheme_name"],
-        "fund_house":  meta["fund_house"],
-        "category":    meta["scheme_category"],
-        "latest_nav":  latest["nav_value"],
-        "nav_date":    latest["nav_date"],
-    })
+            # Convert records to DataFrame
+            df = pd.DataFrame(records)
+            df.columns = ["nav_date", "nav_value"]
+            df["scheme_code"] = code
+            df["scheme_name"] = meta.get("scheme_name", name)
+            df["fund_house"] = meta.get("fund_house", "N/A")
 
-# Save snapshot of all latest NAVs
-print("\n" + "=" * 50)
-snap_df = pd.DataFrame(snapshot)
-snap_df.to_csv(RAW / "live_nav_snapshot.csv", index=False)
+            # Get the latest entry
+            latest = df.iloc[0]
+            print(f"    - Latest NAV: Rs. {latest['nav_value']} on {latest['nav_date']}")
 
-print("\n📊 LIVE NAV SNAPSHOT:")
-print(snap_df.to_string(index=False))
-print("\n💾 Saved as live_nav_snapshot.csv")
-print("\n✅ ALL DONE!")
+            # Save individual CSV
+            filename = f"nav_{code}_{name}.csv"
+            df.to_csv(raw_dir / filename, index=False)
+            print(f"    - Saved individual CSV to data/raw/{filename}")
+
+            # Append to snapshot summary
+            snapshot.append({
+                "scheme_code": code,
+                "scheme_name": meta.get("scheme_name", name),
+                "fund_house": meta.get("fund_house", "N/A"),
+                "category": meta.get("scheme_category", "N/A"),
+                "latest_nav": latest["nav_value"],
+                "nav_date": latest["nav_date"],
+            })
+            successful_fetches += 1
+
+        except requests.exceptions.Timeout:
+            print("  [ERROR] Connection timed out (10s limit exceeded). Skipping.")
+        except requests.exceptions.RequestException as e:
+            print(f"  [ERROR] Network/Connection error occurred: {e}. Skipping.")
+        except Exception as e:
+            print(f"  [ERROR] Unexpected error parsing response: {e}. Skipping.")
+
+    print("\n" + "=" * 60)
+    if successful_fetches > 0:
+        snap_df = pd.DataFrame(snapshot)
+        snap_df.to_csv(raw_dir / "live_nav_snapshot.csv", index=False)
+        print("LIVE NAV SNAPSHOT SUMMARY:")
+        print(snap_df.to_string(index=False))
+        print(f"\nSaved live snapshot to: data/raw/live_nav_snapshot.csv")
+        print(f"  Successfully fetched {successful_fetches}/{len(SCHEMES)} schemes.")
+        print("=" * 60)
+        return True
+    else:
+        print("  [ERROR] FAILED TO FETCH ANY LIVE NAV DATA (API is offline or network is disconnected).")
+        print("=" * 60)
+        return False
+
+
+if __name__ == "__main__":
+    fetch_live_navs()

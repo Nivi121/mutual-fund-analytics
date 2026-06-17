@@ -1,8 +1,24 @@
+"""
+create_data_dictionary.py
+==========================
+Generates a markdown documentation dictionary detailing SQLite tables,
+columns, classifications, raw files, and business terminology definitions.
+Outputs the results directly into data_dictionary.md.
+"""
+
+import sys
 import pathlib
 
-BASE = pathlib.Path(__file__).parent.resolve()
+# Force stdout encoding to UTF-8 if supported
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
 
-content = """# Data Dictionary — Mutual Fund Analytics Project
+# Default base path is the directory containing this script
+BASE_PATH = pathlib.Path(__file__).parent.resolve()
+
+DICTIONARY_CONTENT = """# Data Dictionary — Mutual Fund Analytics Project
 
 > Auto-generated documentation for all tables and columns.
 
@@ -146,7 +162,28 @@ Fact table storing monthly Assets Under Management for each fund.
 | ELSS | Equity Linked Savings Scheme — tax saving fund |
 """
 
-output = BASE / "data_dictionary.md"
-output.write_text(content, encoding="utf-8")
-print("✅ data_dictionary.md created successfully!")
-print(f"   Saved to: {output}")
+
+def generate_data_dictionary(base_path: pathlib.Path = BASE_PATH) -> bool:
+    """
+    Writes a formatted markdown file describing schemas, column types,
+    and business terms to data_dictionary.md.
+
+    Args:
+        base_path (pathlib.Path): Root path of the project.
+
+    Returns:
+        bool: True if writing succeeded, False otherwise.
+    """
+    output_file = base_path / "data_dictionary.md"
+    try:
+        output_file.write_text(DICTIONARY_CONTENT, encoding="utf-8")
+        print("[OK] Data Dictionary generated successfully!")
+        print(f"   Saved to: {output_file.name}")
+        return True
+    except Exception as e:
+        print(f"[ERROR] Error generating Data Dictionary: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    generate_data_dictionary()

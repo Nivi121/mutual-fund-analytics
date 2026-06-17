@@ -1,5 +1,4 @@
 
-
 -- Dimension Table: Fund details
 CREATE TABLE IF NOT EXISTS dim_fund (
     scheme_code     INTEGER PRIMARY KEY,
