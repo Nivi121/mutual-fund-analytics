@@ -1,4 +1,41 @@
 scheme_code,scheme_name,sip_count,avg_gap_days,max_gap_days,status
-119092,Axis Bluechip,6,63.0,103,⚠️ At-Risk
-120841,Kotak Bluechip,7,54.7,71,⚠️ At-Risk
-119551,SBI Bluechip,6,15.2,34,✅ Regular
+100033,HDFC Mid-Cap Opportunities Fund - Regular - Growth,443,1.2,7,✅ Regular
+119598,SBI Small Cap Fund - Regular Plan - Growth,441,1.2,9,✅ Regular
+101206,ABSL Frontline Equity Fund - Regular - Growth,490,1.1,8,✅ Regular
+100025,HDFC Short Term Debt Fund - Regular - Growth,449,1.1,7,✅ Regular
+102885,UTI Nifty 50 Index Fund - Regular - Growth,476,1.1,8,✅ Regular
+118634,Nippon India Small Cap Fund - Regular - Growth,485,1.1,7,✅ Regular
+102887,UTI Flexi Cap Fund - Regular - Growth,490,1.1,8,✅ Regular
+102886,UTI Mid Cap Fund - Regular - Growth,478,1.1,5,✅ Regular
+120841,Kotak Bluechip Fund - Regular - Growth,453,1.1,7,✅ Regular
+120843,Kotak Flexicap Fund - Regular - Growth,483,1.1,8,✅ Regular
+149323,DSP Midcap Fund - Regular - Growth,488,1.1,6,✅ Regular
+118633,Nippon India Large Cap Fund - Direct - Growth,479,1.1,6,✅ Regular
+119120,SBI Magnum Gilt Fund - Regular Plan - Growth,469,1.1,8,✅ Regular
+119599,SBI Small Cap Fund - Direct Plan - Growth,476,1.1,7,✅ Regular
+119094,Axis Midcap Fund - Regular - Growth,482,1.1,7,✅ Regular
+120503,ICICI Pru Bluechip Fund - Regular - Growth,450,1.1,9,✅ Regular
+120844,Kotak Liquid Fund - Regular - Growth,487,1.1,7,✅ Regular
+120505,ICICI Pru Midcap Fund - Regular - Growth,483,1.1,6,✅ Regular
+148569,Mirae Asset Tax Saver Fund - Regular - Growth,482,1.1,9,✅ Regular
+100016,HDFC Top 100 Fund - Regular Plan - Growth,513,1.0,6,✅ Regular
+101207,ABSL Small Cap Fund - Regular - Growth,536,1.0,7,✅ Regular
+101208,ABSL Liquid Fund - Regular - Growth,505,1.0,6,✅ Regular
+119093,Axis Bluechip Fund - Direct - Growth,511,1.0,8,✅ Regular
+119092,Axis Bluechip Fund - Regular - Growth,505,1.0,5,✅ Regular
+119552,SBI Bluechip Fund - Direct Plan - Growth,500,1.0,6,✅ Regular
+119551,SBI Bluechip Fund - Regular Plan - Growth,498,1.0,8,✅ Regular
+119095,Axis Small Cap Fund - Regular - Growth,521,1.0,7,✅ Regular
+118632,Nippon India Large Cap Fund - Regular - Growth,510,1.0,9,✅ Regular
+118635,Nippon India ETF Nifty 50 BeES,504,1.0,5,✅ Regular
+118636,Nippon India Gilt Securities Fund - Regular - Growth,507,1.0,7,✅ Regular
+120507,ICICI Pru Liquid Fund - Regular - Growth,504,1.0,7,✅ Regular
+120506,ICICI Pru Value Discovery Fund - Regular - Growth,499,1.0,8,✅ Regular
+120842,Kotak Emerging Equity Fund - Regular - Growth,492,1.0,7,✅ Regular
+120504,ICICI Pru Bluechip Fund - Direct - Growth,540,1.0,8,✅ Regular
+125497,HDFC Top 100 Fund - Direct Plan - Growth,535,1.0,8,✅ Regular
+125498,HDFC Mid-Cap Opportunities Fund - Direct - Growth,540,1.0,6,✅ Regular
+148568,Mirae Asset Emerging Bluechip Fund - Regular - Growth,503,1.0,6,✅ Regular
+148567,Mirae Asset Large Cap Fund - Regular - Growth,492,1.0,7,✅ Regular
+149322,DSP Top 100 Equity Fund - Regular - Growth,519,1.0,8,✅ Regular
+149324,DSP Small Cap Fund - Regular - Growth,498,1.0,6,✅ Regular

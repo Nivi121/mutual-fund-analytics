@@ -1,11 +1,11 @@
 DATA QUALITY SUMMARY REPORT
 ============================
-Generated: 2026-06-17 15:21:21
+Generated: 2026-06-19 12:56:38
 
 1. AMFI REFERENTIAL INTEGRITY CODE VALIDATION
-   - Total codes in fund_master : 10
-   - Total codes in nav_history : 10
-   - Codes matching on both sides: 10
+   - Total codes in fund_master : 40
+   - Total codes in nav_history : 40
+   - Codes matching on both sides: 40
    - Codes missing from history : 0
    - Status: [OK] ALL CODES MATCHED
 

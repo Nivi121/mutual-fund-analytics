@@ -63,7 +63,7 @@ def clean_nav_history(raw_dir: pathlib.Path, processed_dir: pathlib.Path) -> boo
             group = group.reindex(all_dates).ffill()
             group["scheme_code"] = code
             group = group.reset_index()
-            group.columns = ["nav_date", "nav_value", "scheme_code"]
+            group.columns = ["nav_date", "scheme_code", "nav_value"]
             filled_frames.append(group)
 
         nav = pd.concat(filled_frames, ignore_index=True)

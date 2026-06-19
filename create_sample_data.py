@@ -1,16 +1,13 @@
 """
 create_sample_data.py
 ======================
-Generates synthetic raw CSV files for the Mutual Fund Analytics project.
-Creates 10 synthetic datasets to simulate mutual fund operations, NAV history,
-investor transactions, performance returns, expenses, and risk metrics.
+Loads, parses, and maps client mutual fund CSV datasets from the dataset/
+folder into the data/raw/ directory, conforming to the project schema.
 """
 
 import sys
 import os
 import pathlib
-from datetime import date, timedelta
-import numpy as np
 import pandas as pd
 
 # Force stdout encoding to UTF-8 if supported
@@ -25,135 +22,192 @@ BASE_PATH = pathlib.Path(__file__).parent.resolve()
 
 def generate_sample_data(base_path: pathlib.Path = BASE_PATH) -> None:
     """
-    Generates 10 synthetic raw CSV files representing mutual fund datasets
-    and saves them in the raw data directory.
+    Reads user-provided real CSV files from the dataset directory,
+    maps their columns to match the expected ETL/DB schema formats,
+    calculates dynamic fields like units and experience, and saves
+    them in the raw data directory.
 
     Args:
         base_path (pathlib.Path): The root folder of the project.
     """
+    dataset_dir = base_path / "dataset"
     raw_dir = base_path / "data" / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    print("Generating sample CSV datasets...")
+    print("Mapping and copying user CSV datasets...")
 
-    # Set random seed for reproducibility
-    np.random.seed(42)
+    # Helper function to read dataset safely
+    def read_dataset(filename: str) -> pd.DataFrame:
+        path = dataset_dir / filename
+        if not path.exists():
+            raise FileNotFoundError(f"Required source file not found: {path}")
+        return pd.read_csv(path)
 
     # 1. Fund Master
+    # Source: 01_fund_master.csv
+    # Target columns: scheme_code, scheme_name, fund_house, category, sub_category, risk_grade, plan_type
+    df_fund = read_dataset("01_fund_master.csv")
     fund_master = pd.DataFrame({
-        "scheme_code": [119551, 120503, 118632, 119092, 120841, 125497, 101305, 102816, 103504, 118989],
-        "scheme_name": ["SBI Bluechip", "ICICI Bluechip", "Nippon Large Cap",
-                        "Axis Bluechip", "Kotak Bluechip", "HDFC Top 100",
-                        "DSP Top 100", "Franklin Bluechip", "Mirae Large Cap", "Parag Parikh Flexi"],
-        "fund_house":  ["SBI MF", "ICICI Prudential", "Nippon India", "Axis MF",
-                        "Kotak MF", "HDFC MF", "DSP MF", "Franklin", "Mirae", "Parag Parikh"],
-        "category":    ["Equity"] * 10,
-        "sub_category":["Large Cap"]*6 + ["Mid Cap", "Small Cap", "Flexi Cap", "ELSS"],
-        "risk_grade":  ["Moderately High"]*8 + ["High", "Very High"],
-        "plan_type":   ["Direct"] * 10,
+        "scheme_code": df_fund["amfi_code"],
+        "scheme_name": df_fund["scheme_name"],
+        "fund_house": df_fund["fund_house"],
+        "category": df_fund["category"],
+        "sub_category": df_fund["sub_category"],
+        "risk_grade": df_fund["risk_category"],
+        "plan_type": df_fund["plan"]
     })
     fund_master.to_csv(raw_dir / "fund_master.csv", index=False)
     print("  [OK] Created: fund_master.csv")
 
     # 2. NAV History
-    schemes = [119551, 120503, 118632, 119092, 120841, 125497, 101305, 102816, 103504, 118989]
-    dates = pd.date_range(end=date.today(), periods=365, freq="B")
-    rows = []
-    for sc in schemes:
-        nav = 50.0
-        for d in dates:
-            nav = nav * (1 + np.random.normal(0.0003, 0.008))
-            rows.append({"scheme_code": sc, "nav_date": d.date(), "nav_value": round(nav, 4)})
-    pd.DataFrame(rows).to_csv(raw_dir / "nav_history.csv", index=False)
+    # Source: 02_nav_history.csv
+    # Target columns: scheme_code, nav_date, nav_value
+    df_nav = read_dataset("02_nav_history.csv")
+    nav_history = pd.DataFrame({
+        "scheme_code": df_nav["amfi_code"],
+        "nav_date": df_nav["date"],
+        "nav_value": df_nav["nav"]
+    })
+    nav_history.to_csv(raw_dir / "nav_history.csv", index=False)
     print("  [OK] Created: nav_history.csv")
 
     # 3. Scheme Returns
-    pd.DataFrame({
-        "scheme_code": schemes,
-        "1m_return":  [round(np.random.uniform(-3, 6), 2) for _ in schemes],
-        "3m_return":  [round(np.random.uniform(-5, 12), 2) for _ in schemes],
-        "6m_return":  [round(np.random.uniform(-8, 18), 2) for _ in schemes],
-        "1y_return":  [round(np.random.uniform(-10, 35), 2) for _ in schemes],
-        "3y_return":  [round(np.random.uniform(5, 60), 2) for _ in schemes],
-        "5y_return":  [round(np.random.uniform(15, 120), 2) for _ in schemes],
-    }).to_csv(raw_dir / "scheme_returns.csv", index=False)
+    # Source: 07_scheme_performance.csv
+    # Target columns: scheme_code, 1m_return, 3m_return, 6m_return, 1y_return, 3y_return, 5y_return
+    df_perf = read_dataset("07_scheme_performance.csv")
+    scheme_returns = pd.DataFrame({
+        "scheme_code": df_perf["amfi_code"],
+        "1m_return": 0.0,
+        "3m_return": 0.0,
+        "6m_return": 0.0,
+        "1y_return": df_perf["return_1yr_pct"],
+        "3y_return": df_perf["return_3yr_pct"],
+        "5y_return": df_perf["return_5yr_pct"]
+    })
+    scheme_returns.to_csv(raw_dir / "scheme_returns.csv", index=False)
     print("  [OK] Created: scheme_returns.csv")
 
     # 4. Benchmark Index
-    b_rows = []
-    bidx = 18000.0
-    for d in dates:
-        bidx = bidx * (1 + np.random.normal(0.0003, 0.007))
-        b_rows.append({"date": d.date(), "index_name": "Nifty 100", "close": round(bidx, 2)})
-    pd.DataFrame(b_rows).to_csv(raw_dir / "benchmark_index.csv", index=False)
+    # Source: 10_benchmark_indices.csv
+    # Target columns: date, index_name, close
+    df_bench = read_dataset("10_benchmark_indices.csv")
+    benchmark_index = pd.DataFrame({
+        "date": df_bench["date"],
+        "index_name": df_bench["index_name"],
+        "close": df_bench["close_value"]
+    })
+    benchmark_index.to_csv(raw_dir / "benchmark_index.csv", index=False)
     print("  [OK] Created: benchmark_index.csv")
 
     # 5. Fund Manager
-    pd.DataFrame({
-        "scheme_code":    schemes,
-        "manager_name":   ["Prashant Jain", "S. Naren", "Sailesh Raj Bhan", "Jinesh Gopani",
-                           "Harish Krishnan", "Chirag Setalvad", "Apoorva Shah", "Ankit Jain",
-                           "Neelesh Surana", "Rajeev Thakkar"],
-        "experience_yrs": list(range(10, 20)),
-    }).to_csv(raw_dir / "fund_manager.csv", index=False)
+    # Source: 01_fund_master.csv
+    # Calculate experience_yrs dynamically from launch_date
+    df_fund["launch_date_parsed"] = pd.to_datetime(df_fund["launch_date"], errors="coerce")
+    reference_date = pd.to_datetime("2026-06-19")
+    calculated_exp = ((reference_date - df_fund["launch_date_parsed"]).dt.days / 365.25).fillna(10.0).round().astype(int)
+    calculated_exp = calculated_exp.clip(lower=1)
+
+    fund_manager = pd.DataFrame({
+        "scheme_code": df_fund["amfi_code"],
+        "manager_name": df_fund["fund_manager"].fillna("Unknown Manager"),
+        "experience_yrs": calculated_exp
+    })
+    fund_manager.to_csv(raw_dir / "fund_manager.csv", index=False)
     print("  [OK] Created: fund_manager.csv")
 
     # 6. Portfolio Holdings
-    stocks = ["Reliance", "HDFC Bank", "Infosys", "ICICI Bank", "TCS", "ITC", "Kotak Bank"]
-    hold_rows = []
-    for sc in schemes:
-        for stk in stocks:
-            hold_rows.append({
-                "scheme_code": sc,
-                "stock_name":  stk,
-                "weight_pct":  round(np.random.uniform(3, 12), 2),
-            })
-    pd.DataFrame(hold_rows).to_csv(raw_dir / "portfolio_holdings.csv", index=False)
+    # Source: 09_portfolio_holdings.csv
+    # Target columns: scheme_code, stock_name, weight_pct
+    df_hold = read_dataset("09_portfolio_holdings.csv")
+    portfolio_holdings = pd.DataFrame({
+        "scheme_code": df_hold["amfi_code"],
+        "stock_name": df_hold["stock_name"],
+        "weight_pct": df_hold["weight_pct"]
+    })
+    portfolio_holdings.to_csv(raw_dir / "portfolio_holdings.csv", index=False)
     print("  [OK] Created: portfolio_holdings.csv")
 
     # 7. AUM History
-    aum_rows = []
-    for i, sc in enumerate(schemes):
-        aum = (1000 + i * 200)
-        for d in pd.date_range(end=date.today(), periods=12, freq="ME"):
-            aum = aum * (1 + np.random.normal(0.02, 0.04))
-            aum_rows.append({"scheme_code": sc, "date": d.date(), "aum_crore": round(aum, 2)})
-    pd.DataFrame(aum_rows).to_csv(raw_dir / "aum_history.csv", index=False)
+    # Source: 07_scheme_performance.csv (which contains scheme-level aum_crore snapshot)
+    # Target columns: scheme_code, date, aum_crore
+    # We will use the portfolio snapshot date 2025-12-31 matching NAV history
+    aum_history = pd.DataFrame({
+        "scheme_code": df_perf["amfi_code"],
+        "date": "2025-12-31",
+        "aum_crore": df_perf["aum_crore"]
+    })
+    aum_history.to_csv(raw_dir / "aum_history.csv", index=False)
     print("  [OK] Created: aum_history.csv")
 
     # 8. Expense Ratio
-    pd.DataFrame({
-        "scheme_code":           schemes,
-        "direct_expense_ratio":  [round(np.random.uniform(0.3, 1.2), 2) for _ in schemes],
-        "regular_expense_ratio": [round(np.random.uniform(1.2, 2.5), 2) for _ in schemes],
-    }).to_csv(raw_dir / "expense_ratio.csv", index=False)
+    # Source: 01_fund_master.csv
+    # Target columns: scheme_code, direct_expense_ratio, regular_expense_ratio
+    expense_ratio = pd.DataFrame({
+        "scheme_code": df_fund["amfi_code"],
+        "direct_expense_ratio": df_fund["expense_ratio_pct"],
+        "regular_expense_ratio": df_fund["expense_ratio_pct"]
+    })
+    expense_ratio.to_csv(raw_dir / "expense_ratio.csv", index=False)
     print("  [OK] Created: expense_ratio.csv")
 
     # 9. Risk Metrics
-    pd.DataFrame({
-        "scheme_code":  schemes,
-        "sharpe_ratio": [round(np.random.uniform(0.4, 1.8), 2) for _ in schemes],
-        "beta":         [round(np.random.uniform(0.7, 1.3), 2) for _ in schemes],
-        "alpha":        [round(np.random.uniform(-2, 5), 2) for _ in schemes],
-        "max_drawdown": [round(np.random.uniform(-35, -8), 2) for _ in schemes],
-    }).to_csv(raw_dir / "risk_metrics.csv", index=False)
+    # Source: 07_scheme_performance.csv
+    # Target columns: scheme_code, sharpe_ratio, beta, alpha, max_drawdown
+    risk_metrics = pd.DataFrame({
+        "scheme_code": df_perf["amfi_code"],
+        "sharpe_ratio": df_perf["sharpe_ratio"],
+        "beta": df_perf["beta"],
+        "alpha": df_perf["alpha"],
+        "max_drawdown": df_perf["max_drawdown_pct"]
+    })
+    risk_metrics.to_csv(raw_dir / "risk_metrics.csv", index=False)
     print("  [OK] Created: risk_metrics.csv")
 
     # 10. Investor Transactions
-    txn_rows = []
-    for i in range(100):
-        txn_rows.append({
-            "transaction_id": f"TXN{i:04d}",
-            "scheme_code":    np.random.choice(schemes),
-            "txn_date":       (date.today() - timedelta(days=np.random.randint(0, 365))).isoformat(),
-            "txn_type":       np.random.choice(["BUY", "SELL", "SWP"]),
-            "amount":         round(np.random.uniform(1000, 500000), 2),
-            "units":          round(np.random.uniform(10, 5000), 3),
-        })
-    pd.DataFrame(txn_rows).to_csv(raw_dir / "investor_transactions.csv", index=False)
+    # Source: 08_investor_transactions.csv
+    # Target columns: transaction_id, scheme_code, txn_date, txn_type, amount, units
+    # Calculate units dynamically based on historical NAV at transaction date
+    df_txn = read_dataset("08_investor_transactions.csv")
+    
+    # Parse dates for sorting and merging
+    df_nav_sorted = df_nav.copy()
+    df_nav_sorted["date"] = pd.to_datetime(df_nav_sorted["date"])
+    df_nav_sorted = df_nav_sorted.sort_values("date")
+    
+    df_txn_sorted = df_txn.copy()
+    df_txn_sorted["transaction_date"] = pd.to_datetime(df_txn_sorted["transaction_date"])
+    df_txn_sorted = df_txn_sorted.sort_values("transaction_date")
+    
+    # Perform backward fill lookup for NAV on transaction date (handles weekends/holidays)
+    df_txn_merged = pd.merge_asof(
+        df_txn_sorted,
+        df_nav_sorted,
+        left_on="transaction_date",
+        right_on="date",
+        by="amfi_code",
+        direction="backward"
+    )
+    
+    # Fallback to default NAV of 10.0 if not found
+    df_txn_merged["nav"] = df_txn_merged["nav"].fillna(10.0)
+    df_txn_merged["units"] = (df_txn_merged["amount_inr"] / df_txn_merged["nav"]).round(4)
+    
+    # Restore sorting and formatting
+    df_txn_merged = df_txn_merged.sort_values("transaction_date")
+    
+    investor_transactions = pd.DataFrame({
+        "transaction_id": [f"TXN{i:05d}" for i in range(len(df_txn_merged))],
+        "scheme_code": df_txn_merged["amfi_code"],
+        "txn_date": df_txn_merged["transaction_date"].dt.strftime('%Y-%m-%d'),
+        "txn_type": df_txn_merged["transaction_type"],
+        "amount": df_txn_merged["amount_inr"],
+        "units": df_txn_merged["units"]
+    })
+    
+    investor_transactions.to_csv(raw_dir / "investor_transactions.csv", index=False)
     print("  [OK] Created: investor_transactions.csv")
 
-    print("\nAll 10 raw synthetic datasets successfully generated in data/raw/")
+    print("\nAll 10 raw datasets successfully copied and mapped from dataset/ to data/raw/")
 
 
 if __name__ == "__main__":

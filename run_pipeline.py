@@ -30,7 +30,7 @@ BASE = Path(__file__).resolve().parent
 
 # Pipeline steps in execution order
 STEPS = [
-    ("create_sample_data.py",      "Step 1: Generate synthetic raw datasets"),
+    ("create_sample_data.py",      "Step 1: Prepare and map raw client datasets"),
     ("data_ingestion.py",          "Step 2: Profile structural dataset inputs"),
     ("live_nav_fetch.py",          "Step 3: Fetch real-time AMFI NAV logs"),
     ("clean_data.py",              "Step 4: Execute data cleaning transformations"),

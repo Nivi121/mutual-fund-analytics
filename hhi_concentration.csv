@@ -1,11 +1,35 @@
 scheme_code,scheme_name,num_stocks,hhi_score,concentration
-102816,Franklin Bluechip,7,1619.91,🟡 Moderate
-119551,SBI Bluechip,7,1605.99,🟡 Moderate
-118632,Nippon Large Cap,7,1594.88,🟡 Moderate
-118989,Parag Parikh Flexi,7,1587.73,🟡 Moderate
-101305,DSP Top 100,7,1578.42,🟡 Moderate
-125497,HDFC Top 100,7,1562.22,🟡 Moderate
-120841,Kotak Bluechip,7,1538.37,🟡 Moderate
-120503,ICICI Bluechip,7,1511.22,🟡 Moderate
-119092,Axis Bluechip,7,1505.58,🟡 Moderate
-103504,Mirae Large Cap,7,1495.22,🟢 Low
+119092,Axis Bluechip Fund - Regular - Growth,10,2064.89,🟡 Moderate
+101207,ABSL Small Cap Fund - Regular - Growth,8,2007.41,🟡 Moderate
+119599,SBI Small Cap Fund - Direct Plan - Growth,8,1747.51,🟡 Moderate
+102885,UTI Nifty 50 Index Fund - Regular - Growth,9,1747.09,🟡 Moderate
+118632,Nippon India Large Cap Fund - Regular - Growth,8,1682.31,🟡 Moderate
+148568,Mirae Asset Emerging Bluechip Fund - Regular - Growth,8,1679.63,🟡 Moderate
+120505,ICICI Pru Midcap Fund - Regular - Growth,8,1575.07,🟡 Moderate
+120506,ICICI Pru Value Discovery Fund - Regular - Growth,9,1537.32,🟡 Moderate
+125498,HDFC Mid-Cap Opportunities Fund - Direct - Growth,8,1524.14,🟡 Moderate
+120841,Kotak Bluechip Fund - Regular - Growth,10,1496.5,🟢 Low
+148569,Mirae Asset Tax Saver Fund - Regular - Growth,9,1494.56,🟢 Low
+100033,HDFC Mid-Cap Opportunities Fund - Regular - Growth,9,1475.92,🟢 Low
+149323,DSP Midcap Fund - Regular - Growth,9,1416.21,🟢 Low
+120503,ICICI Pru Bluechip Fund - Regular - Growth,8,1408.7,🟢 Low
+100016,HDFC Top 100 Fund - Regular Plan - Growth,10,1395.34,🟢 Low
+148567,Mirae Asset Large Cap Fund - Regular - Growth,8,1386.12,🟢 Low
+125497,HDFC Top 100 Fund - Direct Plan - Growth,8,1365.86,🟢 Low
+119094,Axis Midcap Fund - Regular - Growth,9,1363.79,🟢 Low
+118635,Nippon India ETF Nifty 50 BeES,8,1359.71,🟢 Low
+149322,DSP Top 100 Equity Fund - Regular - Growth,9,1344.25,🟢 Low
+119093,Axis Bluechip Fund - Direct - Growth,10,1308.94,🟢 Low
+102887,UTI Flexi Cap Fund - Regular - Growth,10,1297.79,🟢 Low
+101206,ABSL Frontline Equity Fund - Regular - Growth,10,1293.06,🟢 Low
+120843,Kotak Flexicap Fund - Regular - Growth,10,1286.83,🟢 Low
+120842,Kotak Emerging Equity Fund - Regular - Growth,10,1274.64,🟢 Low
+118633,Nippon India Large Cap Fund - Direct - Growth,11,1214.61,🟢 Low
+119551,SBI Bluechip Fund - Regular Plan - Growth,10,1187.16,🟢 Low
+149324,DSP Small Cap Fund - Regular - Growth,12,1186.77,🟢 Low
+102886,UTI Mid Cap Fund - Regular - Growth,11,1147.39,🟢 Low
+119095,Axis Small Cap Fund - Regular - Growth,11,1096.27,🟢 Low
+120504,ICICI Pru Bluechip Fund - Direct - Growth,11,1086.52,🟢 Low
+118634,Nippon India Small Cap Fund - Regular - Growth,10,1083.58,🟢 Low
+119552,SBI Bluechip Fund - Direct Plan - Growth,11,1079.89,🟢 Low
+119598,SBI Small Cap Fund - Regular Plan - Growth,12,1073.7,🟢 Low
